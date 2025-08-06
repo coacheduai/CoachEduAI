@@ -1,0 +1,365 @@
+
+{% extends "base.html" %}
+
+{% block title %}Bài tập - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-book me-2"></i>Thư viện bài tập</h2>
+                <a href="{{ url_for('create_exercise') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Tạo bài tập mới
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Môn học</label>
+                            <select class="form-select" id="subjectFilter">
+                                <option value="">Tất cả môn học</option>
+                                <option value="math">Toán học</option>
+                                <option value="physics">Vật lý</option>
+                                <option value="chemistry">Hóa học</option>
+                                <option value="biology">Sinh học</option>
+                                <option value="literature">Văn học</option>
+                                <option value="english">Tiếng Anh</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Độ khó</label>
+                            <select class="form-select" id="difficultyFilter">
+                                <option value="">Tất cả độ khó</option>
+                                <option value="easy">Dễ</option>
+                                <option value="medium">Trung bình</option>
+                                <option value="hard">Khó</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tìm kiếm</label>
+                            <input type="text" class="form-control search-input" 
+                                   data-search-type="exercises" placeholder="Tìm kiếm bài tập...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercises List -->
+    <div class="row" id="exercisesList">
+        {% for exercise in exercises %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card exercise-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title">{{ exercise.title }}</h6>
+                        <span class="badge difficulty-{{ exercise.difficulty }}">
+                            {% if exercise.difficulty == 'easy' %}Dễ
+                            {% elif exercise.difficulty == 'medium' %}Trung bình
+                            {% else %}Khó{% endif %}
+                        </span>
+                    </div>
+                    
+                    <p class="card-text small">{{ exercise.content[:100] }}...</p>
+                    
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-book me-1"></i>{{ exercise.subject }}
+                                </small><br>
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ exercise.username }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-primary">{{ exercise.points }} điểm</div>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-primary" 
+                                            onclick="startExercise({{ exercise.id }})">
+                                        Làm bài
+                                    </button>
+                                    {% if exercise.username == session.username %}
+                                    <button class="btn btn-sm btn-outline-warning" 
+                                            onclick="editExercise({{ exercise.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            onclick="deleteExercise({{ exercise.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not exercises %}
+    <div class="text-center mt-5">
+        <i class="fas fa-book fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Chưa có bài tập nào</h4>
+        <p class="text-muted">Hãy tạo bài tập đầu tiên!</p>
+        <a href="{{ url_for('create_exercise') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Tạo bài tập mới
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Exercise Modal -->
+<div class="modal fade" id="exerciseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exerciseTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="exerciseContent"></div>
+                <div class="mt-3">
+                    <label class="form-label">Đáp án của bạn:</label>
+                    <textarea class="form-control" id="exerciseAnswer" rows="3" 
+                              placeholder="Nhập đáp án..."></textarea>
+                </div>
+                <div class="mt-2 text-end">
+                    <span id="exerciseTimer" class="badge bg-info">00:00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitExercise()">
+                    Nộp bài
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentExerciseId = null;
+
+function startExercise(exerciseId) {
+    currentExerciseId = exerciseId;
+    
+    // Fetch exercise details
+    fetch(`/api/exercise/${exerciseId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('exerciseTitle').textContent = data.title;
+            document.getElementById('exerciseContent').innerHTML = data.content;
+            document.getElementById('exerciseAnswer').value = '';
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('exerciseModal'));
+            modal.show();
+            
+            // Start timer
+            CoachEduAI.startExercise(exerciseId);
+        });
+}
+
+function submitExercise() {
+    if (!currentExerciseId) return;
+    
+    const answer = document.getElementById('exerciseAnswer').value.trim();
+    if (!answer) {
+        alert('Vui lòng nhập đáp án!');
+        return;
+    }
+    
+    fetch('/api/submit_exercise', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            exercise_id: currentExerciseId,
+            answer: answer
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            if (data.is_correct) {
+                // Update UI or refresh ranking
+                location.reload();
+            }
+        } else {
+            alert('Lỗi: ' + data.message);
+        }
+        bootstrap.Modal.getInstance(document.getElementById('exerciseModal')).hide();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi nộp bài!');
+    });
+}
+
+// Filter functionality
+document.getElementById('subjectFilter').addEventListener('change', filterExercises);
+document.getElementById('difficultyFilter').addEventListener('change', filterExercises);
+
+function filterExercises() {
+    const subjectFilter = document.getElementById('subjectFilter').value;
+    const difficultyFilter = document.getElementById('difficultyFilter').value;
+    
+    // This would typically filter via AJAX
+    // For now, we'll reload the page with filters
+    let url = new URL(window.location);
+    if (subjectFilter) url.searchParams.set('subject', subjectFilter);
+    else url.searchParams.delete('subject');
+    
+    if (difficultyFilter) url.searchParams.set('difficulty', difficultyFilter);
+    else url.searchParams.delete('difficulty');
+    
+    window.location = url;
+}
+
+// Edit exercise
+function editExercise(exerciseId) {
+    // Fetch exercise data
+    fetch(`/api/exercise/${exerciseId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Create edit form modal
+                const editForm = `
+                    <div class="modal fade" id="editExerciseModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Chỉnh sửa bài tập</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="editExerciseForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" id="editTitle" value="${data.title}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Nội dung</label>
+                                            <textarea class="form-control" id="editContent" rows="5" required>${data.content}</textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Môn học</label>
+                                                <select class="form-select" id="editSubject" required>
+                                                    <option value="math" ${data.subject === 'math' ? 'selected' : ''}>Toán học</option>
+                                                    <option value="physics" ${data.subject === 'physics' ? 'selected' : ''}>Vật lý</option>
+                                                    <option value="chemistry" ${data.subject === 'chemistry' ? 'selected' : ''}>Hóa học</option>
+                                                    <option value="biology" ${data.subject === 'biology' ? 'selected' : ''}>Sinh học</option>
+                                                    <option value="literature" ${data.subject === 'literature' ? 'selected' : ''}>Văn học</option>
+                                                    <option value="english" ${data.subject === 'english' ? 'selected' : ''}>Tiếng Anh</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Độ khó</label>
+                                                <select class="form-select" id="editDifficulty" required>
+                                                    <option value="easy" ${data.difficulty === 'easy' ? 'selected' : ''}>Dễ</option>
+                                                    <option value="medium" ${data.difficulty === 'medium' ? 'selected' : ''}>Trung bình</option>
+                                                    <option value="hard" ${data.difficulty === 'hard' ? 'selected' : ''}>Khó</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Điểm</label>
+                                                <input type="number" class="form-control" id="editPoints" value="${data.points}" min="1" max="100" required>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="button" class="btn btn-primary" onclick="saveExerciseEdit(${exerciseId})">Lưu thay đổi</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add modal to page and show
+                document.body.insertAdjacentHTML('beforeend', editForm);
+                const modal = new bootstrap.Modal(document.getElementById('editExerciseModal'));
+                modal.show();
+                
+                // Remove modal when hidden
+                document.getElementById('editExerciseModal').addEventListener('hidden.bs.modal', function() {
+                    this.remove();
+                });
+            }
+        });
+}
+
+// Save exercise edit
+function saveExerciseEdit(exerciseId) {
+    const exerciseData = {
+        title: document.getElementById('editTitle').value,
+        content: document.getElementById('editContent').value,
+        subject: document.getElementById('editSubject').value,
+        difficulty: document.getElementById('editDifficulty').value,
+        points: parseInt(document.getElementById('editPoints').value)
+    };
+    
+    fetch(`/api/edit_exercise/${exerciseId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(exerciseData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            bootstrap.Modal.getInstance(document.getElementById('editExerciseModal')).hide();
+            location.reload();
+        } else {
+            alert('Lỗi: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi cập nhật bài tập!');
+    });
+}
+
+// Delete exercise
+function deleteExercise(exerciseId) {
+    if (confirm('Bạn có chắc chắn muốn xóa bài tập này?')) {
+        fetch(`/api/delete_exercise/${exerciseId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi xóa bài tập!');
+        });
+    }
+}
+</script>
+{% endblock %}

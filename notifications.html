@@ -1,0 +1,636 @@
+
+{% extends "base.html" %}
+
+{% block title %}Thông Báo - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">
+                    <i class="fas fa-bell me-2 text-info"></i>
+                    Thông báo
+                </h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-light btn-sm" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double me-1"></i>Đánh dấu đã đọc
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="clearAll()">
+                        <i class="fas fa-trash me-1"></i>Xóa tất cả
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-pills justify-content-center bg-dark rounded p-2" id="notificationTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active text-white" id="all-tab" data-bs-toggle="pill" 
+                            data-bs-target="#all" type="button" role="tab">
+                        Tất cả <span class="badge bg-primary ms-1">{{ all_notifications|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-white" id="unread-tab" data-bs-toggle="pill" 
+                            data-bs-target="#unread" type="button" role="tab">
+                        Chưa đọc <span class="badge bg-danger ms-1">{{ unread_notifications|length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-white" id="contests-tab" data-bs-toggle="pill" 
+                            data-bs-target="#contests" type="button" role="tab">
+                        Kỳ thi
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-white" id="groups-tab" data-bs-toggle="pill" 
+                            data-bs-target="#groups" type="button" role="tab">
+                        Nhóm
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Notifications Content -->
+    <div class="row">
+        <div class="col-12">
+            <div class="tab-content" id="notificationTabContent">
+                <!-- All Notifications -->
+                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                    <div class="notifications-container">
+                        {% for notification in all_notifications %}
+                        <div class="notification-item {% if not notification.is_read %}unread{% endif %}" 
+                             data-type="{{ notification.type }}" 
+                             data-id="{{ notification.id }}">
+                            <div class="notification-icon bg-{{ 'warning' if notification.type == 'contest' else 'info' if notification.type == 'group' else 'success' if notification.type == 'exercise' else 'primary' }}">
+                                <i class="fas fa-{{ 'trophy' if notification.type == 'contest' else 'users' if notification.type == 'group' else 'pencil-alt' if notification.type == 'exercise' else 'bell' }}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title text-white">{{ notification.title }}</h6>
+                                <p class="notification-message text-light">{{ notification.message }}</p>
+                                <div class="notification-meta">
+                                    <span class="time text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ moment(notification.created_at).fromNow() }}
+                                    </span>
+                                    <span class="category text-muted">
+                                        <i class="fas fa-tag me-1"></i>{{ notification.type|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-light" onclick="viewNotification({{ notification.id }})">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
+                                {% if not notification.is_read %}
+                                <button class="btn btn-sm btn-outline-success" onclick="markAsRead({{ notification.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if not all_notifications %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không có thông báo</h5>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Unread Notifications -->
+                <div class="tab-pane fade" id="unread" role="tabpanel">
+                    <div class="notifications-container">
+                        {% for notification in unread_notifications %}
+                        <div class="notification-item unread" data-type="{{ notification.type }}" data-id="{{ notification.id }}">
+                            <div class="notification-icon bg-{{ 'warning' if notification.type == 'contest' else 'info' if notification.type == 'group' else 'success' if notification.type == 'exercise' else 'primary' }}">
+                                <i class="fas fa-{{ 'trophy' if notification.type == 'contest' else 'users' if notification.type == 'group' else 'pencil-alt' if notification.type == 'exercise' else 'bell' }}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title text-white">{{ notification.title }}</h6>
+                                <p class="notification-message text-light">{{ notification.message }}</p>
+                                <div class="notification-meta">
+                                    <span class="time text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ moment(notification.created_at).fromNow() }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-light" onclick="viewNotification({{ notification.id }})">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="markAsRead({{ notification.id }})">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if not unread_notifications %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-muted">Tất cả thông báo đã được đọc</h5>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contest Notifications -->
+                <div class="tab-pane fade" id="contests" role="tabpanel">
+                    <div class="notifications-container">
+                        {% for notification in contest_notifications %}
+                        <div class="notification-item" data-id="{{ notification.id }}">
+                            <div class="notification-icon bg-warning">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title text-white">{{ notification.title }}</h6>
+                                <p class="notification-message text-light">{{ notification.message }}</p>
+                                <div class="notification-meta">
+                                    <span class="time text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ moment(notification.created_at).fromNow() }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-light" onclick="viewNotification({{ notification.id }})">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if not contest_notifications %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-trophy fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không có thông báo về kỳ thi</h5>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Group Notifications -->
+                <div class="tab-pane fade" id="groups" role="tabpanel">
+                    <div class="notifications-container">
+                        {% for notification in group_notifications %}
+                        <div class="notification-item" data-id="{{ notification.id }}">
+                            <div class="notification-icon bg-info">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="notification-content">
+                                <h6 class="notification-title text-white">{{ notification.title }}</h6>
+                                <p class="notification-message text-light">{{ notification.message }}</p>
+                                <div class="notification-meta">
+                                    <span class="time text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ moment(notification.created_at).fromNow() }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="btn btn-sm btn-outline-light" onclick="viewNotification({{ notification.id }})">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if not group_notifications %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không có thông báo về nhóm</h5>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Detail Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white" id="notificationModalTitle">Chi tiết thông báo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-light" id="notificationModalBody">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="markReadBtn" onclick="markCurrentAsRead()">Đánh dấu đã đọc</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Template -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 80px;">
+    <div id="liveToast" class="toast bg-dark" role="alert">
+        <div class="toast-header bg-secondary text-white">
+            <i class="fas fa-bell text-primary me-2"></i>
+            <strong class="me-auto">Thông báo</strong>
+            <small class="text-light">Vừa xong</small>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body text-light">
+            Thông báo mới!
+        </div>
+    </div>
+</div>
+
+<style>
+body {
+    background-color: #2c3e50 !important;
+    color: #ffffff !important;
+}
+
+.notifications-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: #34495e !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    border: 1px solid #5a6c7d;
+}
+
+.notification-item:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    transform: translateY(-2px);
+    background: #3c5572 !important;
+}
+
+.notification-item.unread {
+    border-left-color: #3498db;
+    background-color: #2c3e50 !important;
+    border-color: #3498db;
+}
+
+.notification-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
+.notification-title {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: #ffffff !important;
+}
+
+.notification-message {
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    color: #ecf0f1 !important;
+}
+
+.notification-meta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.notification-meta span {
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    color: #95a5a6 !important;
+}
+
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.nav-pills {
+    border-radius: 15px;
+    background: #2c3e50 !important;
+}
+
+.nav-pills .nav-link {
+    color: #bdc3c7 !important;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: rgba(52, 152, 219, 0.2) !important;
+    color: #3498db !important;
+}
+
+.toast-container {
+    z-index: 1055 !important;
+}
+
+.toast {
+    background-color: #34495e !important;
+    color: #ffffff !important;
+    border: 1px solid #5a6c7d;
+}
+
+.modal-content {
+    background-color: #2c3e50 !important;
+    border: 1px solid #5a6c7d;
+}
+
+.btn-outline-light {
+    border-color: #bdc3c7;
+    color: #bdc3c7;
+}
+
+.btn-outline-light:hover {
+    background-color: #bdc3c7;
+    color: #2c3e50;
+}
+
+.btn-outline-success {
+    border-color: #27ae60;
+    color: #27ae60;
+}
+
+.btn-outline-success:hover {
+    background-color: #27ae60;
+    color: white;
+}
+
+.btn-outline-secondary {
+    border-color: #95a5a6;
+    color: #95a5a6;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #95a5a6;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .notification-item {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .notification-icon {
+        margin: 0 auto 15px auto;
+    }
+    
+    .notification-content {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .notification-actions {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .nav-pills {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+.text-muted {
+    color: #95a5a6 !important;
+}
+
+.text-success {
+    color: #27ae60 !important;
+}
+
+.text-info {
+    color: #3498db !important;
+}
+
+.text-warning {
+    color: #f39c12 !important;
+}
+</style>
+
+<script>
+let currentNotificationId = null;
+
+function viewNotification(notificationId) {
+    fetch(`/api/notification/${notificationId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notification = data.notification;
+                currentNotificationId = notificationId;
+                
+                document.getElementById('notificationModalTitle').textContent = notification.title;
+                document.getElementById('notificationModalBody').innerHTML = `
+                    <div class="mb-3">
+                        <strong class="text-info">Loại:</strong> 
+                        <span class="badge bg-${getTypeColor(notification.type)}">${getTypeName(notification.type)}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-info">Thời gian:</strong> 
+                        <span class="text-light">${formatDateTime(notification.created_at)}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong class="text-info">Nội dung:</strong>
+                        <div class="mt-2 p-3 bg-secondary rounded text-light">
+                            ${notification.message}
+                        </div>
+                    </div>
+                    ${notification.data ? `
+                    <div class="mb-3">
+                        <strong class="text-info">Thông tin bổ sung:</strong>
+                        <pre class="bg-dark p-3 rounded text-light mt-2"><code>${JSON.stringify(notification.data, null, 2)}</code></pre>
+                    </div>
+                    ` : ''}
+                `;
+                
+                // Update mark as read button
+                const markReadBtn = document.getElementById('markReadBtn');
+                if (notification.is_read) {
+                    markReadBtn.style.display = 'none';
+                } else {
+                    markReadBtn.style.display = 'inline-block';
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                modal.show();
+            } else {
+                showToast('Không thể tải thông báo', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Có lỗi xảy ra', 'error');
+        });
+}
+
+function markAsRead(notificationId) {
+    fetch('/api/mark_notification_read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            notification_id: notificationId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Đã đánh dấu là đã đọc', 'success');
+            updateNotificationItem(notificationId);
+            updateUnreadCount();
+        } else {
+            showToast('Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra', 'error');
+    });
+}
+
+function markCurrentAsRead() {
+    if (currentNotificationId) {
+        markAsRead(currentNotificationId);
+        bootstrap.Modal.getInstance(document.getElementById('notificationModal')).hide();
+    }
+}
+
+function markAllAsRead() {
+    fetch('/api/mark_all_notifications_read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Đã đánh dấu tất cả là đã đọc', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast('Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Có lỗi xảy ra', 'error');
+    });
+}
+
+function clearAll() {
+    if (confirm('Bạn có chắc muốn xóa tất cả thông báo?')) {
+        showToast('Tính năng xóa sẽ được thêm vào sau', 'info');
+    }
+}
+
+function updateNotificationItem(notificationId) {
+    const notificationItem = document.querySelector(`[data-id="${notificationId}"]`);
+    if (notificationItem) {
+        notificationItem.classList.remove('unread');
+        const markBtn = notificationItem.querySelector('button[onclick*="markAsRead"]');
+        if (markBtn) {
+            markBtn.remove();
+        }
+    }
+}
+
+function updateUnreadCount() {
+    const unreadBadge = document.querySelector('#unread-tab .badge');
+    if (unreadBadge) {
+        let count = parseInt(unreadBadge.textContent) || 0;
+        if (count > 0) {
+            unreadBadge.textContent = count - 1;
+        }
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toastElement = document.getElementById('liveToast');
+    const toastBody = toastElement.querySelector('.toast-body');
+    
+    toastBody.textContent = message;
+    
+    // Update toast color based on type
+    toastElement.className = `toast bg-dark border-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'}`;
+    
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
+
+function getTypeColor(type) {
+    const colors = {
+        'contest': 'warning',
+        'group': 'info',
+        'exercise': 'success',
+        'system': 'primary',
+        'achievement': 'warning'
+    };
+    return colors[type] || 'secondary';
+}
+
+function getTypeName(type) {
+    const names = {
+        'contest': 'Kỳ thi',
+        'group': 'Nhóm',
+        'exercise': 'Bài tập',
+        'system': 'Hệ thống',
+        'achievement': 'Thành tích'
+    };
+    return names[type] || 'Khác';
+}
+
+function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN');
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh notifications every 30 seconds
+    setInterval(function() {
+        console.log('Checking for new notifications...');
+    }, 30000);
+});
+</script>
+{% endblock %}

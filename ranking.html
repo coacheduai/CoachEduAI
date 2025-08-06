@@ -1,0 +1,748 @@
+
+{% extends "base.html" %}
+
+{% block title %}Bảng Xếp Hạng - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="display-5 fw-bold text-gradient mb-2">
+                <i class="fas fa-trophy me-2 text-warning"></i>
+                Bảng Xếp Hạng
+            </h2>
+            <p class="text-muted lead">Top học sinh xuất sắc nhất trên nền tảng</p>
+        </div>
+    </div>
+
+    <!-- Top 3 Podium -->
+    {% if overall_ranking and overall_ranking|length >= 3 %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="podium-container">
+                <div class="podium d-flex justify-content-center align-items-end">
+                    <!-- 2nd Place -->
+                    <div class="podium-place second-place">
+                        <div class="podium-user">
+                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                 alt="Avatar" class="podium-avatar">
+                            <div class="podium-medal">🥈</div>
+                        </div>
+                        <div class="podium-info">
+                            <h6 class="mb-1">{{ overall_ranking[1].full_name or overall_ranking[1].username }}</h6>
+                            <small class="text-muted">{{ overall_ranking[1].total_score or 0 }} điểm</small>
+                        </div>
+                        <div class="podium-bar second"></div>
+                        <div class="podium-rank">2</div>
+                    </div>
+                    
+                    <!-- 1st Place -->
+                    <div class="podium-place first-place">
+                        <div class="podium-user">
+                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                 alt="Avatar" class="podium-avatar">
+                            <div class="podium-medal">🥇</div>
+                            <div class="crown">👑</div>
+                        </div>
+                        <div class="podium-info">
+                            <h5 class="mb-1 fw-bold">{{ overall_ranking[0].full_name or overall_ranking[0].username }}</h5>
+                            <small class="text-warning fw-bold">{{ overall_ranking[0].total_score or 0 }} điểm</small>
+                        </div>
+                        <div class="podium-bar first"></div>
+                        <div class="podium-rank">1</div>
+                    </div>
+                    
+                    <!-- 3rd Place -->
+                    <div class="podium-place third-place">
+                        <div class="podium-user">
+                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                 alt="Avatar" class="podium-avatar">
+                            <div class="podium-medal">🥉</div>
+                        </div>
+                        <div class="podium-info">
+                            <h6 class="mb-1">{{ overall_ranking[2].full_name or overall_ranking[2].username }}</h6>
+                            <small class="text-muted">{{ overall_ranking[2].total_score or 0 }} điểm</small>
+                        </div>
+                        <div class="podium-bar third"></div>
+                        <div class="podium-rank">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="subjectSelect" class="form-label fw-semibold">
+                                <i class="fas fa-book me-1"></i>Chọn môn học
+                            </label>
+                            <select class="form-select" id="subjectSelect">
+                                <option value="overall" {% if current_subject == 'overall' %}selected{% endif %}>Tổng thể</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}" {% if current_subject == subject.id %}selected{% endif %}>{{ subject.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="timeFilter" class="form-label fw-semibold">
+                                <i class="fas fa-clock me-1"></i>Thời gian
+                            </label>
+                            <select class="form-select" id="timeFilter">
+                                <option value="all" selected>Tất cả thời gian</option>
+                                <option value="month">Tháng này</option>
+                                <option value="week">Tuần này</option>
+                                <option value="today">Hôm nay</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <span id="statusIndicator" class="badge bg-success me-2 pulse">
+                                    <i class="fas fa-circle me-1"></i>Trực tuyến
+                                </span>
+                                <small class="text-muted">
+                                    Cập nhật: <span id="lastUpdateTime">--:--:--</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h4 class="stat-number">{{ overall_ranking|length }}</h4>
+                    <p class="stat-label">Tổng học sinh</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h4 class="stat-number">{{ overall_ranking|selectattr('total_score')|map(attribute='total_score')|sum or 0 }}</h4>
+                    <p class="stat-label">Tổng điểm</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="stat-content">
+                    <h4 class="stat-number">{{ (overall_ranking|selectattr('total_score', 'greaterthan', 0)|list|length / (overall_ranking|length) * 100)|round|int if overall_ranking|length > 0 else 0 }}%</h4>
+                    <p class="stat-label">Hoạt động</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <div class="stat-content">
+                    <h4 class="stat-number">{{ overall_ranking[0].total_score or 0 if overall_ranking else 0 }}</h4>
+                    <p class="stat-label">Điểm cao nhất</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ranking Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-list-ol me-2"></i>
+                            Bảng xếp hạng chi tiết
+                        </h5>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-sm btn-light me-2" onclick="refreshRanking()">
+                                <i class="fas fa-sync-alt"></i> Làm mới
+                            </button
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if overall_ranking %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 ranking-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="80" class="text-center">Hạng</th>
+                                    <th>Học sinh</th>
+                                    <th class="text-center">Trường học</th>
+                                    <th class="text-center">Thành phố</th>
+                                    <th class="text-center" width="120">Điểm số</th>
+                                    <th class="text-center" width="100">Tiến độ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rankingTableBody">
+                                {% for user in overall_ranking %}
+                                <tr class="ranking-row {% if loop.index <= 3 %}top-rank{% endif %}" data-rank="{{ loop.index }}">
+                                    <td class="text-center">
+                                        {% if loop.index <= 3 %}
+                                        <div class="rank-badge rank-{{ loop.index }}">
+                                            {% if loop.index == 1 %}🥇
+                                            {% elif loop.index == 2 %}🥈
+                                            {% else %}🥉
+                                            {% endif %}
+                                            <span class="rank-number">{{ loop.index }}</span>
+                                        </div>
+                                        {% else %}
+                                        <span class="rank-number-normal">{{ loop.index }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-container me-3">
+                                                <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                                     alt="Avatar" class="avatar-md">
+                                                <div class="status-indicator online"></div>
+                                            </div>
+                                            <div>
+                                                <div class="user-name fw-semibold">{{ user.full_name or user.username }}</div>
+                                                <small class="text-muted">@{{ user.username }}</small>
+                                                <div class="user-meta">
+                                                    <span class="badge bg-light text-dark me-1">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        Tham gia {{ user.created_at[:10] if user.created_at else 'N/A' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-muted">{{ user.school or 'Chưa cập nhật' }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="text-muted">{{ user.city or 'Chưa cập nhật' }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="score-container">
+                                            <span class="badge bg-gradient-success fs-6 px-3 py-2">
+                                                <i class="fas fa-star me-1"></i>{{ user.total_score or 0 }} điểm
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: {{ ((user.total_score or 0) / (overall_ranking[0].total_score or 1) * 100)|round if overall_ranking[0].total_score else 0 }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ ((user.total_score or 0) / (overall_ranking[0].total_score or 1) * 100)|round if overall_ranking[0].total_score else 0 }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-trophy fa-4x text-muted mb-4"></i>
+                            <h4 class="text-muted mb-3">Chưa có dữ liệu xếp hạng</h4>
+                            <p class="text-muted mb-4">Hãy tham gia giải bài tập để xuất hiện trong bảng xếp hạng!</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ url_for('exercises') }}" class="btn btn-primary">
+                                    <i class="fas fa-book me-2"></i>Làm bài tập
+                                </a>
+                                <a href="{{ url_for('contests') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-trophy me-2"></i>Tham gia cuộc thi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom Styles */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* Podium Styles */
+.podium-container {
+    padding: 2rem 0;
+}
+
+.podium {
+    gap: 2rem;
+    height: 300px;
+}
+
+.podium-place {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.podium-user {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.podium-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.first-place .podium-avatar {
+    width: 100px;
+    height: 100px;
+    border-color: #ffd700;
+}
+
+.podium-medal {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 2rem;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+}
+
+.crown {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    animation: bounce 2s infinite;
+}
+
+.podium-info {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.podium-bar {
+    width: 120px;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+}
+
+.podium-bar.first {
+    height: 120px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+}
+
+.podium-bar.second {
+    height: 90px;
+    background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+}
+
+.podium-bar.third {
+    height: 60px;
+    background: linear-gradient(135deg, #cd7f32, #daa520);
+}
+
+.podium-rank {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Statistics Cards */
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.stat-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.stat-label {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Table Styles */
+.ranking-table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa !important;
+    color: #495057;
+    padding: 1rem 0.75rem;
+}
+
+.ranking-table td {
+    vertical-align: middle;
+    padding: 1rem 0.75rem;
+}
+
+.ranking-row {
+    transition: background-color 0.2s ease;
+}
+
+.ranking-row:hover {
+    background-color: #f8f9fa;
+}
+
+.top-rank {
+    background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,255,255,0) 100%);
+}
+
+.rank-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.rank-number {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.rank-number-normal {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.avatar-container {
+    position: relative;
+}
+
+.avatar-md {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.status-indicator.online {
+    background-color: #28a745;
+}
+
+.user-name {
+    color: #2c3e50;
+}
+
+.user-meta {
+    margin-top: 0.25rem;
+}
+
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Animations */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .podium {
+        flex-direction: column;
+        height: auto;
+        gap: 1rem;
+    }
+    
+    .podium-place {
+        width: 100%;
+    }
+    
+    .podium-bar {
+        width: 100%;
+        height: 60px !important;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<script>
+// Initialize variables
+let currentSubject = '{{ current_subject or "overall" }}';
+let lastUpdateTime = Date.now();
+
+// Real-time status indicator
+function updateStatus(online) {
+    const statusIndicator = document.getElementById('statusIndicator');
+    if (statusIndicator) {
+        statusIndicator.className = online ? 'badge bg-success pulse' : 'badge bg-danger';
+        statusIndicator.innerHTML = online ? '<i class="fas fa-circle me-1"></i>Trực tuyến' : '<i class="fas fa-circle me-1"></i>Mất kết nối';
+    }
+}
+
+// Set status as online (since we're not using SocketIO)
+updateStatus(true);
+
+// Update last update time display
+function updateLastUpdateTime() {
+    const timeElement = document.getElementById('lastUpdateTime');
+    if (timeElement) {
+        timeElement.textContent = new Date(lastUpdateTime).toLocaleTimeString('vi-VN');
+    }
+}
+
+// Update ranking table with animation
+function updateRankingTable(rankings) {
+    const tbody = document.getElementById('rankingTableBody');
+    if (!tbody) return;
+    
+    // Fade out
+    tbody.style.transition = 'opacity 0.3s ease';
+    tbody.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        tbody.innerHTML = '';
+        
+        rankings.forEach((user, index) => {
+            const row = document.createElement('tr');
+            row.className = `ranking-row ${index < 3 ? 'top-rank' : ''}`;
+            row.setAttribute('data-rank', user.rank);
+            
+            const rankBadge = index < 3 ? 
+                `<div class="rank-badge rank-${index + 1}">
+                    ${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                    <span class="rank-number">${user.rank}</span>
+                </div>` :
+                `<span class="rank-number-normal">${user.rank}</span>`;
+            
+            row.innerHTML = `
+                <td class="text-center">${rankBadge}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-container me-3">
+                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                 alt="Avatar" class="avatar-md">
+                            <div class="status-indicator online"></div>
+                        </div>
+                        <div>
+                            <div class="user-name fw-semibold">${user.full_name || user.username}</div>
+                            <small class="text-muted">@${user.username}</small>
+                            <div class="user-meta">
+                                <span class="badge bg-light text-dark me-1">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    Hoạt động
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <span class="text-muted">${user.school || 'Chưa cập nhật'}</span>
+                </td>
+                <td class="text-center">
+                    <span class="text-muted">${user.city || 'Chưa cập nhật'}</span>
+                </td>
+                <td class="text-center">
+                    <div class="score-container">
+                        <span class="badge bg-gradient-success fs-6 px-3 py-2">
+                            <i class="fas fa-star me-1"></i>${user.score} điểm
+                        </span>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: ${rankings.length > 0 ? Math.round((user.score / (rankings[0].score || 1)) * 100) : 0}%"></div>
+                    </div>
+                    <small class="text-muted">${rankings.length > 0 ? Math.round((user.score / (rankings[0].score || 1)) * 100) : 0}%</small>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        // Fade in
+        tbody.style.opacity = '1';
+    }, 300);
+}
+
+// Subject filter change
+document.getElementById('subjectSelect').addEventListener('change', function() {
+    const subject = this.value;
+    currentSubject = subject;
+    console.log('Filter by subject:', subject);
+    window.location.href = '/ranking?subject=' + subject;
+});
+
+// Time filter change  
+document.getElementById('timeFilter').addEventListener('change', function() {
+    const time = this.value;
+    console.log('Filter by time:', time);
+    // You can implement time-based filtering here
+});
+
+// Auto-save data every second
+setInterval(function() {
+    fetch('/api/auto_save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Data auto-saved at:', new Date().toLocaleTimeString());
+        }
+    })
+    .catch(error => {
+        console.log('Auto-save error:', error);
+    });
+}, 1000);
+
+// Update time display every second
+setInterval(updateLastUpdateTime, 1000);
+
+// Refresh ranking function
+function refreshRanking() {
+    location.reload();
+}
+
+// Add test points function
+
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateLastUpdateTime();
+    
+    // Add toast notification styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+{% endblock %}

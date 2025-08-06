@@ -1,0 +1,225 @@
+
+{% extends "base.html" %}
+
+{% block title %}Nhóm - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-users me-2 text-info"></i>
+                    Nhóm học tập
+                </h2>
+                <a href="{{ url_for('create_group') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Tạo nhóm
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Tìm kiếm nhóm..." id="searchGroups">
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="groupType" id="allGroups" checked>
+                <label class="btn btn-outline-primary" for="allGroups">Tất cả</label>
+                
+                <input type="radio" class="btn-check" name="groupType" id="publicGroups">
+                <label class="btn btn-outline-success" for="publicGroups">Công khai</label>
+                
+                <input type="radio" class="btn-check" name="groupType" id="privateGroups">
+                <label class="btn btn-outline-warning" for="privateGroups">Riêng tư</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Groups Grid -->
+    <div class="row" id="groupsContainer">
+        {% for group in groups %}
+        <div class="col-md-6 col-lg-4 mb-4 group-card" data-type="{{ 'private' if group.is_private else 'public' }}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-{{ 'lock' if group.is_private else 'globe' }} me-2"></i>
+                        {{ 'Riêng tư' if group.is_private else 'Công khai' }}
+                    </h6>
+                    <span class="badge bg-{{ 'warning' if group.is_private else 'success' }}">
+                        <i class="fas fa-users me-1"></i>{{ group.member_count or 0 }}
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ group.name }}</h5>
+                    <p class="card-text text-muted">{{ group.description or 'Không có mô tả' }}</p>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user-crown me-1"></i>
+                            Quản lý: {{ group.creator_name }}
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            Tạo: {{ group.created_at.strftime('%d/%m/%Y') if group.created_at else 'N/A' }}
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        {% if group.is_private %}
+                        <button class="btn btn-warning btn-sm" onclick="requestJoinGroup({{ group.id }})">
+                            <i class="fas fa-key me-1"></i>Yêu cầu tham gia
+                        </button>
+                        {% else %}
+                        <button class="btn btn-success btn-sm" onclick="joinGroup({{ group.id }})">
+                            <i class="fas fa-user-plus me-1"></i>Tham gia
+                        </button>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-eye me-1"></i>Xem
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Empty state -->
+        {% if not groups %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Chưa có nhóm nào</h4>
+            <p class="text-muted">Hãy tạo nhóm đầu tiên hoặc tìm kiếm nhóm khác.</p>
+            <a href="{{ url_for('create_group') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Tạo nhóm mới
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Groups pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">Trước</a>
+            </li>
+            <li class="page-item active">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">2</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">3</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">Sau</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+.group-card {
+    transition: transform 0.2s;
+}
+
+.group-card:hover {
+    transform: translateY(-3px);
+}
+
+.card-header {
+    background-color: rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+</style>
+
+<script>
+// Search functionality
+document.getElementById('searchGroups').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const groupCards = document.querySelectorAll('.group-card');
+    
+    groupCards.forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const description = card.querySelector('.card-text').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Filter by group type
+document.querySelectorAll('input[name="groupType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const groupCards = document.querySelectorAll('.group-card');
+        const filterType = this.id;
+        
+        groupCards.forEach(card => {
+            const cardType = card.dataset.type;
+            
+            if (filterType === 'allGroups') {
+                card.style.display = '';
+            } else if (filterType === 'publicGroups' && cardType === 'public') {
+                card.style.display = '';
+            } else if (filterType === 'privateGroups' && cardType === 'private') {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Join group functions
+function joinGroup(groupId) {
+    if (confirm('Bạn có chắc muốn tham gia nhóm này?')) {
+        fetch('/api/join_group', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                group_id: groupId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi tham gia nhóm');
+        });
+    }
+}
+
+function requestJoinGroup(groupId) {
+    if (confirm('Gửi yêu cầu tham gia nhóm riêng tư này?')) {
+        // For private groups, we can implement a request system later
+        alert('Tính năng yêu cầu tham gia nhóm riêng tư sẽ được cập nhật sau.');
+    }
+}
+</script>
+{% endblock %}
