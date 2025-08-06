@@ -1,0 +1,182 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white text-center py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-graduation-cap me-3"></i>
+                    CoachEduAI
+                </h1>
+                <p class="lead mb-4">Empowering Learning with AI</p>
+                <p class="mb-4">Nền tảng học tập thông minh với AI, giúp bạn học tập hiệu quả hơn</p>
+                
+                {% if not session.user_id %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('register_step1') }}" class="btn btn-light btn-lg me-md-2">
+                        <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                    </a>
+                </div>
+                {% else %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('home') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-home me-2"></i>Vào trang chủ
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-lg-6">
+                <img src="{{ url_for('static', filename='img/hero-illustration.svg') }}" 
+                     alt="Learning with AI" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Tính năng nổi bật</h2>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-robot fa-3x text-primary"></i>
+                    </div>
+                    <h5>AI Coach</h5>
+                    <p>Trợ lý AI thông minh giúp tạo đề bài, chấm bài tự động và hướng dẫn học tập cá nhân hóa</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-trophy fa-3x text-warning"></i>
+                    </div>
+                    <h5>Thi đấu trực tuyến</h5>
+                    <p>Tham gia các cuộc thi, kỳ thi thử với hệ thống chống gian lận và xếp hạng công bằng</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x text-success"></i>
+                    </div>
+                    <h5>Học nhóm</h5>
+                    <p>Tạo và tham gia các nhóm học tập, thảo luận và cùng tiến bộ với bạn bè</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-medal fa-3x text-info"></i>
+                    </div>
+                    <h5>Hệ thống điểm số</h5>
+                    <p>Tích lũy điểm số, thành tựu và huy hiệu qua quá trình học tập</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-line fa-3x text-danger"></i>
+                    </div>
+                    <h5>Theo dõi tiến độ</h5>
+                    <p>Xem lịch sử học tập, phân tích tiến bộ và nhận gợi ý cải thiện</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-book fa-3x text-purple"></i>
+                    </div>
+                    <h5>Thư viện bài tập</h5>
+                    <p>Hàng nghìn bài tập từ dễ đến khó, bao phủ tất cả môn học phổ thông</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Subjects Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Môn học được hỗ trợ</h2>
+        
+        <div class="row g-3">
+            {% set subjects = [
+                "Toán học", "Ngữ văn", "Tiếng Anh", "Tiếng Nhật", "Tiếng Pháp",
+                "Tiếng Nga", "Tiếng Trung", "Tiếng Đức", "Tiếng Hàn", "Vật lý",
+                "Hóa học", "Sinh học", "Lịch sử", "Địa lý", "Giáo dục công dân"
+            ] %}
+            
+            {% for subject in subjects %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="subject-badge text-center p-3 bg-white rounded shadow-sm">
+                    <i class="fas fa-book text-primary mb-2"></i>
+                    <div class="fw-bold">{{ subject }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+{% if not session.user_id %}
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container">
+        <h2 class="mb-4">Sẵn sàng bắt đầu hành trình học tập?</h2>
+        <p class="lead mb-4">Tham gia cùng hàng nghìn học sinh đang học tập hiệu quả với CoachEduAI</p>
+        <a href="{{ url_for('register_step1') }}" class="btn btn-light btn-lg">
+            <i class="fas fa-rocket me-2"></i>Bắt đầu ngay
+        </a>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block head %}
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.feature-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.subject-badge {
+    transition: transform 0.2s;
+}
+
+.subject-badge:hover {
+    transform: scale(1.05);
+}
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,214 @@
+
+{% extends "base.html" %}
+
+{% block title %}Không tìm thấy trang - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <!-- Error Icon -->
+            <div class="error-icon mb-4">
+                <i class="fas fa-search fa-5x text-primary"></i>
+            </div>
+            
+            <!-- Error Content -->
+            <div class="error-content mb-5">
+                <h1 class="display-1 fw-bold text-primary mb-3">404</h1>
+                <h2 class="h3 fw-bold mb-3">Không tìm thấy trang</h2>
+                <p class="lead text-muted mb-4">
+                    Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển. 
+                    Vui lòng kiểm tra lại đường dẫn hoặc quay về trang chủ.
+                </p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="error-actions mb-5">
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ url_for('home' if session.user_id else 'index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>Về trang chủ
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    </button>
+                    <a href="{{ url_for('exercises') if session.user_id else url_for('index') }}" class="btn btn-outline-info btn-lg">
+                        <i class="fas fa-book me-2"></i>Xem bài tập
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Helpful Links -->
+            <div class="helpful-links">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-compass me-2"></i>Có thể bạn đang tìm:
+                        </h5>
+                        <div class="row g-3">
+                            {% if session.user_id %}
+                            <div class="col-md-4">
+                                <a href="{{ url_for('exercises') }}" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-effect">
+                                        <i class="fas fa-book text-primary me-3 fa-2x"></i>
+                                        <div>
+                                            <h6 class="mb-1">Bài tập</h6>
+                                            <small class="text-muted">Luyện tập các dạng bài</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{{ url_for('contests') }}" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-effect">
+                                        <i class="fas fa-trophy text-warning me-3 fa-2x"></i>
+                                        <div>
+                                            <h6 class="mb-1">Cuộc thi</h6>
+                                            <small class="text-muted">Tham gia thi đấu</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="{{ url_for('chatbot') }}" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-effect">
+                                        <i class="fas fa-robot text-success me-3 fa-2x"></i>
+                                        <div>
+                                            <h6 class="mb-1">AI Coach</h6>
+                                            <small class="text-muted">Trợ lý học tập AI</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="col-md-6">
+                                <a href="{{ url_for('login') }}" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-effect">
+                                        <i class="fas fa-sign-in-alt text-primary me-3 fa-2x"></i>
+                                        <div>
+                                            <h6 class="mb-1">Đăng nhập</h6>
+                                            <small class="text-muted">Truy cập tài khoản</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('register_step1') }}" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-effect">
+                                        <i class="fas fa-user-plus text-success me-3 fa-2x"></i>
+                                        <div>
+                                            <h6 class="mb-1">Đăng ký</h6>
+                                            <small class="text-muted">Tạo tài khoản mới</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Support -->
+            <div class="support-info mt-4">
+                <p class="text-muted mb-3">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Vẫn gặp vấn đề? Hãy liên hệ với chúng tôi!
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-outline-primary btn-sm" onclick="contactSupport()">
+                        <i class="fas fa-envelope me-2"></i>Gửi email hỗ trợ
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" onclick="openChat()">
+                        <i class="fas fa-comments me-2"></i>Chat trực tuyến
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-effect {
+    transition: all 0.3s ease;
+}
+
+.hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.error-icon {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.display-1 {
+    font-size: 6rem;
+}
+
+@media (max-width: 768px) {
+    .display-1 {
+        font-size: 4rem;
+    }
+    
+    .error-actions .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+
+<script>
+function contactSupport() {
+    window.location.href = 'mailto:support@coachedual.com?subject=Lỗi 404 - Không tìm thấy trang&body=Xin chào, tôi gặp lỗi 404 khi truy cập: ' + window.location.href;
+}
+
+function openChat() {
+    // Open chat widget or redirect to chat page
+    {% if session.user_id %}
+    window.location.href = '{{ url_for("chat") }}';
+    {% else %}
+    alert('Vui lòng đăng nhập để sử dụng chat hỗ trợ!');
+    {% endif %}
+}
+
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate error code
+    const errorCode = document.querySelector('.display-1');
+    if (errorCode) {
+        errorCode.style.opacity = '0';
+        errorCode.style.transform = 'scale(0.5)';
+        
+        setTimeout(() => {
+            errorCode.style.transition = 'all 0.5s ease-out';
+            errorCode.style.opacity = '1';
+            errorCode.style.transform = 'scale(1)';
+        }, 300);
+    }
+    
+    // Add hover effects to helpful links
+    const helpfulLinks = document.querySelectorAll('.hover-effect');
+    helpfulLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '#e9ecef';
+        });
+    });
+});
+</script>
+{% endblock %}

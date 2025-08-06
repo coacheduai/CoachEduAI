@@ -1,0 +1,503 @@
+
+{% extends "base.html" %}
+
+{% block title %}Chi tiết nhóm - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Group Header -->
+    <div class="card border-0 shadow mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="group-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 60px; height: 60px; font-size: 1.5rem;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h1 class="h3 fw-bold mb-1">Nhóm Toán THPT</h1>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-globe me-1"></i>Công khai
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-users me-1"></i>245 thành viên
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>Tạo: 15/01/2024
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted mb-0">
+                        Nhóm học tập dành cho các bạn học sinh THPT yêu thích môn Toán. 
+                        Cùng nhau chia sẻ kiến thức, giải đáp thắc mắc và luyện tập các dạng bài tập từ cơ bản đến nâng cao.
+                    </p>
+                </div>
+                
+                <div class="col-md-4 text-end">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" onclick="joinGroup()">
+                            <i class="fas fa-user-plus me-2"></i>Tham gia nhóm
+                        </button>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-secondary" onclick="shareGroup()">
+                                <i class="fas fa-share me-1"></i>Chia sẻ
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="reportGroup()">
+                                <i class="fas fa-flag me-1"></i>Báo cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Navigation -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <nav class="nav nav-pills nav-fill">
+                <a class="nav-link active" data-bs-toggle="tab" href="#activities">
+                    <i class="fas fa-stream me-2"></i>Hoạt động
+                </a>
+                <a class="nav-link" data-bs-toggle="tab" href="#exercises">
+                    <i class="fas fa-book me-2"></i>Bài tập
+                </a>
+                <a class="nav-link" data-bs-toggle="tab" href="#members">
+                    <i class="fas fa-users me-2"></i>Thành viên
+                </a>
+                <a class="nav-link" data-bs-toggle="tab" href="#ranking">
+                    <i class="fas fa-trophy me-2"></i>Xếp hạng
+                </a>
+                <a class="nav-link" data-bs-toggle="tab" href="#about">
+                    <i class="fas fa-info-circle me-2"></i>Giới thiệu
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Activities Tab -->
+        <div class="tab-pane fade show active" id="activities">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Post Form -->
+                    <div class="card border-0 shadow mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start">
+                                <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                     class="rounded-circle me-3" width="40" height="40">
+                                <div class="flex-grow-1">
+                                    <textarea class="form-control" rows="3" 
+                                              placeholder="Chia sẻ kiến thức, đặt câu hỏi với nhóm..."></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div class="btn-group">
+                                            <button class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-image"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-paperclip"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-poll"></i>
+                                            </button>
+                                        </div>
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-paper-plane me-2"></i>Đăng
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="card border-0 shadow mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                     class="rounded-circle me-3" width="40" height="40">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h6 class="mb-0 me-2">Nguyễn Văn A</h6>
+                                        <span class="badge bg-success me-2">Quản trị viên</span>
+                                        <small class="text-muted">2 giờ trước</small>
+                                    </div>
+                                    <p class="mb-3">
+                                        Chúng ta hãy cùng thảo luận về bài tập phương trình bậc hai này nhé! 
+                                        Ai có cách giải khác thì chia sẻ để mọi người cùng học hỏi.
+                                    </p>
+                                    
+                                    <div class="bg-light p-3 rounded mb-3">
+                                        <h6 class="mb-2">Bài tập: Giải phương trình x² - 5x + 6 = 0</h6>
+                                        <p class="mb-0 text-muted">Tìm nghiệm và vẽ đồ thị hàm số</p>
+                                    </div>
+                                    
+                                    <div class="d-flex align-items-center gap-3">
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-thumbs-up me-1"></i>Thích (15)
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-comment me-1"></i>Bình luận (8)
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-share me-1"></i>Chia sẻ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Comments -->
+                            <div class="border-top pt-3">
+                                <div class="d-flex align-items-start mb-3">
+                                    <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                         class="rounded-circle me-2" width="32" height="32">
+                                    <div class="flex-grow-1">
+                                        <div class="bg-light p-2 rounded">
+                                            <h6 class="mb-1">Trần Thị B</h6>
+                                            <p class="mb-0">Mình giải được x₁ = 2, x₂ = 3. Các bạn thấy đúng không?</p>
+                                        </div>
+                                        <small class="text-muted">1 giờ trước</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-start">
+                                    <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                         class="rounded-circle me-2" width="32" height="32">
+                                    <div class="flex-grow-1">
+                                        <input type="text" class="form-control" placeholder="Viết bình luận...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Group Stats -->
+                    <div class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-chart-line me-2"></i>Thống kê nhóm
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3 text-center">
+                                <div class="col-6">
+                                    <div class="h4 text-primary mb-1">{{ member_count }}</div>
+                                    <small class="text-muted">Thành viên</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 text-success mb-1">1,234</div>
+                                    <small class="text-muted">Bài tập</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 text-warning mb-1">89</div>
+                                    <small class="text-muted">Cuộc thi</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 text-info mb-1">567</div>
+                                    <small class="text-muted">Thảo luận</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Members -->
+                    <div class="card border-0 shadow">
+                        <div class="card-header bg-white">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-users me-2"></i>Thành viên tích cực
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                             class="rounded-circle me-3" width="32" height="32">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">Nguyễn Văn A</h6>
+                                            <small class="text-muted">Trưởng nhóm</small>
+                                        </div>
+                                        <span class="badge bg-success">Online</span>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                             class="rounded-circle me-3" width="32" height="32">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-0">Trần Thị B</h6>
+                                            <small class="text-muted">Thành viên</small>
+                                        </div>
+                                        <span class="badge bg-warning">Bận</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercises Tab -->
+        <div class="tab-pane fade" id="exercises">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-book me-2"></i>Bài tập của nhóm (156)
+                        </h5>
+                        <button class="btn btn-primary" onclick="createGroupExercise()">
+                            <i class="fas fa-plus me-2"></i>Tạo bài tập
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên bài</th>
+                                    <th width="120">Độ khó</th>
+                                    <th width="100">Điểm</th>
+                                    <th width="150">Tác giả</th>
+                                    <th width="120">Ngày tạo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="cursor-pointer" onclick="viewExercise(1)">
+                                    <td>
+                                        <div class="fw-medium">Phương trình bậc hai cơ bản</div>
+                                        <small class="text-muted">Giải các phương trình dạng ax² + bx + c = 0</small>
+                                    </td>
+                                    <td><span class="badge bg-success">Dễ</span></td>
+                                    <td><span class="fw-medium">10</span></td>
+                                    <td>Nguyễn Văn A</td>
+                                    <td><small class="text-muted">15/01/2024</small></td>
+                                </tr>
+                                <tr class="cursor-pointer" onclick="viewExercise(2)">
+                                    <td>
+                                        <div class="fw-medium">Hệ phương trình tuyến tính</div>
+                                        <small class="text-muted">Giải hệ phương trình 2 ẩn và 3 ẩn</small>
+                                    </td>
+                                    <td><span class="badge bg-warning">Trung bình</span></td>
+                                    <td><span class="fw-medium">15</span></td>
+                                    <td>Trần Thị B</td>
+                                    <td><small class="text-muted">14/01/2024</small></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members Tab -->
+        <div class="tab-pane fade" id="members">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users me-2"></i>Thành viên (245)
+                        </h5>
+                        <div class="input-group" style="width: 300px;">
+                            <input type="text" class="form-control" placeholder="Tìm thành viên...">
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Thành viên</th>
+                                    <th width="120">Vai trò</th>
+                                    <th width="100">Điểm</th>
+                                    <th width="150">Tham gia</th>
+                                    <th width="100">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/' + (member.avatar if member.avatar else 'default-avatar.png')) }}" 
+                                                 class="rounded-circle me-3" width="32" height="32">
+                                            <div>
+                                                <div class="fw-medium">{{ member.full_name or member.username }}</div>
+                                                <small class="text-muted">{{ member.school or 'Chưa cập nhật' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if member.role == 'owner' %}
+                                            <span class="badge bg-danger">Trưởng nhóm</span>
+                                        {% elif member.role == 'admin' %}
+                                            <span class="badge bg-warning">Quản trị viên</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Thành viên</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="fw-medium">{{ member.total_score }}</span></td>
+                                    <td><small class="text-muted">{{ member.joined_at.strftime('%d/%m/%Y') if member.joined_at else 'N/A' }}</small></td>
+                                    <td><span class="badge bg-secondary">Offline</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking Tab -->
+        <div class="tab-pane fade" id="ranking">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>Bảng xếp hạng nhóm
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="80">Hạng</th>
+                                    <th>Thành viên</th>
+                                    <th width="120">Điểm</th>
+                                    <th width="100">Bài làm</th>
+                                    <th width="120">Cuộc thi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-warning fs-6">
+                                            <i class="fas fa-trophy"></i> 1
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" 
+                                                 class="rounded-circle me-3" width="32" height="32">
+                                            <div>
+                                                <div class="fw-medium">Nguyễn Văn A</div>
+                                                <small class="text-muted">THPT Lê Quý Đôn</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="h6 text-success mb-0">2,450</span></td>
+                                    <td><span class="text-muted">89</span></td>
+                                    <td><span class="text-muted">12</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div class="tab-pane fade" id="about">
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h5 class="mb-4">Giới thiệu về nhóm</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <p class="mb-4">
+                                Nhóm Toán THPT là một cộng đồng học tập dành cho các học sinh trung học phổ thông 
+                                yêu thích môn Toán học. Chúng tôi tạo ra một môi trường học tập tích cực, 
+                                nơi mọi người có thể chia sẻ kiến thức, giải đáp thắc mắc và cùng nhau tiến bộ.
+                            </p>
+                            
+                            <h6 class="mb-3">Mục tiêu của nhóm:</h6>
+                            <ul class="mb-4">
+                                <li>Hỗ trợ học sinh học tập môn Toán hiệu quả</li>
+                                <li>Chia sẻ phương pháp giải các dạng bài tập khó</li>
+                                <li>Tổ chức các cuộc thi và hoạt động học tập</li>
+                                <li>Xây dựng cộng đồng học tập tích cực</li>
+                            </ul>
+                            
+                            <h6 class="mb-3">Quy định nhóm:</h6>
+                            <ul class="mb-4">
+                                <li>Tôn trọng lẫn nhau, không spam</li>
+                                <li>Chia sẻ kiến thức tích cực</li>
+                                <li>Không đăng nội dung không phù hợp</li>
+                                <li>Hỗ trợ thành viên khác khi có thể</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="bg-light p-3 rounded">
+                                <h6 class="mb-3">Thông tin nhóm</h6>
+                                <div class="mb-2">
+                                    <strong>Tạo ngày:</strong> 15/01/2024
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Trưởng nhóm:</strong> Nguyễn Văn A
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Thành viên:</strong> 245 người
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Loại nhóm:</strong> Công khai
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Chủ đề:</strong> Toán học THPT
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function joinGroup() {
+    if (confirm('Bạn có muốn tham gia nhóm này không?')) {
+        alert('Đã gửi yêu cầu tham gia nhóm!');
+    }
+}
+
+function shareGroup() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Nhóm Toán THPT',
+            text: 'Tham gia nhóm học tập Toán THPT cùng chúng tôi!',
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Đã sao chép link nhóm!');
+    }
+}
+
+function reportGroup() {
+    if (confirm('Bạn có chắc chắn muốn báo cáo nhóm này?')) {
+        alert('Đã gửi báo cáo. Chúng tôi sẽ xem xét trong thời gian sớm nhất.');
+    }
+}
+
+function createGroupExercise() {
+    window.location.href = '/exercises/create?group=1';
+}
+
+function viewExercise(id) {
+    window.location.href = '/exercises/' + id;
+}
+</script>
+{% endblock %}

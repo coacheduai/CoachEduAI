@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+
+{% block title %}Đăng ký - Bước 3 - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h2 class="fw-bold">Xác nhận thông tin</h2>
+                        <p class="text-muted">Bước 3/3: Hoàn thành đăng ký</p>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            100%
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Xác nhận thông tin đăng ký</h6>
+                        <p class="mb-2"><strong>Họ tên:</strong> {{ session.reg_full_name }}</p>
+                        <p class="mb-2"><strong>Email:</strong> {{ session.reg_email }}</p>
+                        <p class="mb-2"><strong>Ngày sinh:</strong> {{ session.reg_birth_date }}</p>
+                        <p class="mb-2"><strong>Tên đăng nhập:</strong> {{ session.reg_username }}</p>
+                        <p class="mb-2"><strong>Trường:</strong> {{ session.reg_school }}</p>
+                        <p class="mb-0"><strong>Thành phố:</strong> {{ session.reg_city }}</p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="agree_terms" required>
+                            <label class="form-check-label" for="agree_terms">
+                                Tôi đồng ý với <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Điều khoản sử dụng</a> 
+                                và <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Chính sách bảo mật</a>
+                            </label>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-check me-2"></i>Hoàn thành đăng ký
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('register_step2') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Điều khoản sử dụng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Các điều khoản sử dụng dịch vụ CoachEduAI...</p>
+                <!-- Add terms content here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chính sách bảo mật</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Chính sách bảo mật thông tin người dùng...</p>
+                <!-- Add privacy policy content here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

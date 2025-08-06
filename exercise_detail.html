@@ -1,0 +1,304 @@
+
+{% extends "base.html" %}
+
+{% block title %}Chi tiết bài tập - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Exercise Header -->
+    <div class="card border-0 shadow mb-4">
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary me-2">
+                            <i class="fas fa-book me-1"></i>Toán học
+                        </span>
+                        <span class="badge bg-success me-2">Dễ</span>
+                        <span class="badge bg-info">10 điểm</span>
+                    </div>
+                    
+                    <h1 class="h3 fw-bold mb-3">Phương trình bậc hai</h1>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user text-primary me-2"></i>
+                                <span>Tác giả: <strong>GV. Nguyễn Văn A</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar text-primary me-2"></i>
+                                <span>Ngày tạo: <strong>15/01/2024</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users text-primary me-2"></i>
+                                <span>Lượt làm: <strong>1,234</strong></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <span>Tỷ lệ AC: <strong>85%</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 text-end">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" onclick="startExercise()">
+                            <i class="fas fa-play me-2"></i>Bắt đầu làm bài
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="viewSolution()">
+                            <i class="fas fa-lightbulb me-2"></i>Xem lời giải
+                        </button>
+                        <button class="btn btn-outline-info" onclick="discussExercise()">
+                            <i class="fas fa-comments me-2"></i>Thảo luận
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Exercise Content -->
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Đề bài
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="exercise-content">
+                        <p class="lead mb-4">
+                            Cho phương trình bậc hai: <strong>ax² + bx + c = 0</strong> với a ≠ 0.
+                        </p>
+                        
+                        <p class="mb-3">
+                            Hãy tìm nghiệm của phương trình với các hệ số sau:
+                        </p>
+                        
+                        <div class="bg-light p-3 rounded mb-4">
+                            <p class="mb-2"><strong>Cho:</strong></p>
+                            <ul class="mb-0">
+                                <li>a = 1</li>
+                                <li>b = -5</li>
+                                <li>c = 6</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="mb-3">
+                            <strong>Yêu cầu:</strong> Tìm hai nghiệm x₁ và x₂ của phương trình (làm tròn đến 2 chữ số thập phân nếu cần).
+                        </p>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Gợi ý:</strong> Sử dụng công thức nghiệm của phương trình bậc hai: 
+                            x = (-b ± √(b² - 4ac)) / (2a)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answer Section -->
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>Nhập đáp án
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="exercise-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="x1" class="form-label">Nghiệm x₁:</label>
+                                <input type="number" class="form-control form-control-lg" id="x1" 
+                                       step="0.01" placeholder="Nhập nghiệm thứ nhất">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="x2" class="form-label">Nghiệm x₂:</label>
+                                <input type="number" class="form-control form-control-lg" id="x2" 
+                                       step="0.01" placeholder="Nhập nghiệm thứ hai">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label for="explanation" class="form-label">Giải thích cách làm (tùy chọn):</label>
+                            <textarea class="form-control" id="explanation" rows="4" 
+                                      placeholder="Mô tả các bước giải của bạn..."></textarea>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check me-2"></i>Nộp bài
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="fas fa-redo me-2"></i>Làm lại
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Exercise Statistics -->
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Thống kê
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6 text-center">
+                            <div class="h4 text-success mb-1">1,049</div>
+                            <small class="text-muted">Đã làm đúng</small>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="h4 text-danger mb-1">185</div>
+                            <small class="text-muted">Làm sai</small>
+                        </div>
+                        <div class="col-12">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: 85%"></div>
+                            </div>
+                            <div class="text-center mt-2">
+                                <small class="text-muted">Tỷ lệ đúng: 85%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Exercises -->
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-link me-2"></i>Bài tập liên quan
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Phương trình bậc ba</h6>
+                                    <small class="text-muted">Khó • 25 điểm</small>
+                                </div>
+                                <span class="badge bg-warning">Trung bình</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Hệ phương trình</h6>
+                                    <small class="text-muted">Trung bình • 15 điểm</small>
+                                </div>
+                                <span class="badge bg-success">Dễ</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Bất phương trình</h6>
+                                    <small class="text-muted">Dễ • 12 điểm</small>
+                                </div>
+                                <span class="badge bg-success">Dễ</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Submissions -->
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white py-3">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Lần nộp gần đây
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Nguyễn Văn B</h6>
+                                    <small class="text-muted">2 phút trước</small>
+                                </div>
+                                <span class="badge bg-success">AC</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Trần Thị C</h6>
+                                    <small class="text-muted">5 phút trước</small>
+                                </div>
+                                <span class="badge bg-danger">WA</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Lê Văn D</h6>
+                                    <small class="text-muted">8 phút trước</small>
+                                </div>
+                                <span class="badge bg-success">AC</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function startExercise() {
+    document.getElementById('x1').focus();
+}
+
+function viewSolution() {
+    alert('Xem lời giải chi tiết (cần đăng nhập premium)');
+}
+
+function discussExercise() {
+    alert('Chuyển đến diễn đàn thảo luận');
+}
+
+function resetForm() {
+    document.getElementById('exercise-form').reset();
+}
+
+document.getElementById('exercise-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const x1 = parseFloat(document.getElementById('x1').value);
+    const x2 = parseFloat(document.getElementById('x2').value);
+    
+    if (isNaN(x1) || isNaN(x2)) {
+        alert('Vui lòng nhập đầy đủ hai nghiệm!');
+        return;
+    }
+    
+    // Check answer (correct answers are 2 and 3)
+    const correctAnswers = [2, 3];
+    const userAnswers = [x1, x2].sort();
+    const isCorrect = Math.abs(userAnswers[0] - correctAnswers[0]) < 0.01 && 
+                      Math.abs(userAnswers[1] - correctAnswers[1]) < 0.01;
+    
+    if (isCorrect) {
+        alert('🎉 Chính xác! Bạn đã giải đúng bài tập này. +10 điểm!');
+    } else {
+        alert('❌ Chưa đúng. Hãy thử lại!');
+    }
+});
+</script>
+{% endblock %}

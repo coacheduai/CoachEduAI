@@ -1,0 +1,268 @@
+
+{% extends "base.html" %}
+
+{% block title %}Tạo Bài Tập - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-pencil-alt me-2"></i>
+                        Tạo Bài Tập Mới
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="exerciseForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Tên bài tập *</label>
+                                    <input type="text" class="form-control" id="title" name="title" required 
+                                           placeholder="Ví dụ: Phương trình bậc hai" maxlength="200">
+                                    <div class="invalid-feedback">Vui lòng nhập tên bài tập</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Môn học *</label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="">Chọn môn học</option>
+                                        <option value="math">Toán học</option>
+                                        <option value="physics">Vật lý</option>
+                                        <option value="chemistry">Hóa học</option>
+                                        <option value="biology">Sinh học</option>
+                                        <option value="literature">Văn học</option>
+                                        <option value="english">Tiếng Anh</option>
+                                    </select>
+                                    <div class="invalid-feedback">Vui lòng chọn môn học</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Nội dung bài tập *</label>
+                            <textarea class="form-control" id="content" name="content" rows="6" required
+                                      placeholder="Nhập đề bài chi tiết tại đây..." maxlength="2000"></textarea>
+                            <div class="invalid-feedback">Vui lòng nhập nội dung bài tập</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="answer" class="form-label">Đáp án *</label>
+                            <textarea class="form-control" id="answer" name="answer" rows="4" required
+                                      placeholder="Nhập đáp án chi tiết hoặc hướng dẫn giải..." maxlength="1000"></textarea>
+                            <div class="invalid-feedback">Vui lòng nhập đáp án</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="detailed_solution" class="form-label">Lời giải chi tiết (tùy chọn)</label>
+                            <textarea class="form-control" id="detailed_solution" name="detailed_solution" rows="6"
+                                      placeholder="Nhập lời giải từng bước chi tiết để học sinh hiểu rõ cách làm..." maxlength="2000"></textarea>
+                            <small class="form-text text-muted">Phần này sẽ hiển thị khi học sinh xem lời giải</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hints" class="form-label">Gợi ý (tùy chọn)</label>
+                            <textarea class="form-control" id="hints" name="hints" rows="3"
+                                      placeholder="Nhập các gợi ý để giúp học sinh làm bài..." maxlength="500"></textarea>
+                            <small class="form-text text-muted">Gợi ý sẽ hiển thị khi học sinh gặp khó khăn</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="difficulty" class="form-label">Độ khó *</label>
+                                    <select class="form-select" id="difficulty" name="difficulty" required>
+                                        <option value="">Chọn độ khó</option>
+                                        <option value="easy">Dễ (10 điểm)</option>
+                                        <option value="medium">Trung bình (15 điểm)</option>
+                                        <option value="hard">Khó (20 điểm)</option>
+                                    </select>
+                                    <div class="invalid-feedback">Vui lòng chọn độ khó</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="points" class="form-label">Điểm số *</label>
+                                    <input type="number" class="form-control" id="points" name="points" 
+                                           min="1" max="100" value="10" required>
+                                    <div class="invalid-feedback">Vui lòng nhập điểm số từ 1-100</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Loại bài tập</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exercise_type" id="essay" value="essay" checked>
+                                <label class="form-check-label" for="essay">
+                                    <i class="fas fa-edit me-2"></i>Tự luận (nhập đáp án)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exercise_type" id="multiple_choice" value="multiple_choice">
+                                <label class="form-check-label" for="multiple_choice">
+                                    <i class="fas fa-list me-2"></i>Trắc nghiệm (sẽ phát triển sau)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Lưu ý:</strong> Bài tập sẽ được AI tự động phân loại và gán điểm phù hợp cho ranking. 
+                            Hãy đảm bảo nội dung và đáp án chính xác.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('exercises') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </a>
+                            <button type="button" class="btn btn-outline-primary me-md-2" id="previewBtn">
+                                <i class="fas fa-eye me-2"></i>Xem trước
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Tạo bài tập
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="previewModalLabel">
+                    <i class="fas fa-eye me-2"></i>Xem trước bài tập
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 id="previewTitle">Tên bài tập</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary" id="previewSubject">Môn học</span>
+                            <span class="badge bg-warning text-dark" id="previewDifficulty">Độ khó</span>
+                            <span class="badge bg-success" id="previewPoints">Điểm</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h6>Nội dung bài tập:</h6>
+                        <div class="border rounded p-3 mb-3 bg-light" id="previewContent">
+                            Nội dung bài tập sẽ hiển thị ở đây...
+                        </div>
+                        
+                        <h6>Đáp án:</h6>
+                        <div class="border rounded p-3 bg-light" id="previewAnswer">
+                            Đáp án sẽ hiển thị ở đây...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="submitForm()">
+                    <i class="fas fa-save me-2"></i>Tạo bài tập
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update points based on difficulty
+document.getElementById('difficulty').addEventListener('change', function() {
+    const pointsMap = {
+        'easy': 10,
+        'medium': 15,
+        'hard': 20
+    };
+    
+    const pointsInput = document.getElementById('points');
+    if (pointsMap[this.value]) {
+        pointsInput.value = pointsMap[this.value];
+    }
+});
+
+// Character counter for content and answer
+function addCharCounter(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    const counter = document.createElement('small');
+    counter.className = 'text-muted float-end';
+    textarea.parentNode.appendChild(counter);
+    
+    textarea.addEventListener('input', function() {
+        counter.textContent = this.value.length + ' ký tự';
+    });
+}
+
+addCharCounter('content');
+addCharCounter('answer');
+
+// Preview functionality
+document.getElementById('previewBtn').addEventListener('click', function() {
+    if (validateForm()) {
+        updatePreview();
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+    }
+});
+
+function validateForm() {
+    const form = document.getElementById('exerciseForm');
+    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+    let isValid = true;
+    
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+    }
+    
+    return isValid;
+}
+
+function updatePreview() {
+    const title = document.getElementById('title').value;
+    const subject = document.getElementById('subject');
+    const subjectText = subject.options[subject.selectedIndex].text;
+    const difficulty = document.getElementById('difficulty');
+    const difficultyText = difficulty.options[difficulty.selectedIndex].text;
+    const points = document.getElementById('points').value;
+    const content = document.getElementById('content').value;
+    const answer = document.getElementById('answer').value;
+    
+    document.getElementById('previewTitle').textContent = title;
+    document.getElementById('previewSubject').textContent = subjectText;
+    document.getElementById('previewDifficulty').textContent = difficultyText;
+    document.getElementById('previewPoints').textContent = points + ' điểm';
+    document.getElementById('previewContent').textContent = content;
+    document.getElementById('previewAnswer').textContent = answer;
+}
+
+function submitForm() {
+    document.getElementById('exerciseForm').submit();
+}
+
+// Form validation on submit
+document.getElementById('exerciseForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

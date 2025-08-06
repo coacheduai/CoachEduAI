@@ -1,0 +1,324 @@
+
+{% extends "base.html" %}
+
+{% block title %}Chat - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-3">
+            <!-- Sidebar - Danh sách chat -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>
+                        Cuộc trò chuyện
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" id="chatList">
+                        <div class="list-group-item list-group-item-action active" data-chat-id="general">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-primary text-white rounded-circle me-2" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Chat chung</h6>
+                                    <small class="text-muted">Trò chuyện với mọi người</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="clearChatHistory()">
+                        <i class="fas fa-trash me-1"></i>
+                        Xóa lịch sử
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-9">
+            <!-- Chat area -->
+            <div class="card shadow">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment-dots me-2"></i>
+                        <span id="currentChatName">Chat chung</span>
+                    </h5>
+                    <small class="text-muted">
+                        <span id="onlineCount">1</span> người online
+                    </small>
+                </div>
+                
+                <div class="card-body p-0">
+                    <div id="chatMessages" class="chat-messages" style="height: 400px;">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn..." onkeypress="handleEnterPress(event)">
+                        <button class="btn btn-primary" type="button" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.chat-messages {
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg-primary);
+}
+
+.message {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message-sent {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 15px;
+    position: relative;
+}
+
+.message-sent .message-content {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+}
+
+.message-received .message-content {
+    background: #2c2c2c;
+    border: 1px solid #e9ecef;
+    color: var(--text-primary);
+}
+
+.message-info {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    opacity: 0.7;
+}
+
+.message-sent .message-info {
+    text-align: right;
+    color: rgba(255,255,255,0.8);
+}
+
+.message-received .message-info {
+    color: var(--text-muted);
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.avatar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+</style>
+
+<script>
+let currentChatId = 'general';
+let messageHistory = JSON.parse(localStorage.getItem('chatHistory')) || {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadChatHistory();
+});
+
+function loadChatHistory() {
+    const messages = messageHistory[currentChatId] || [];
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = '';
+    
+    if (messages.length === 0) {
+        chatMessages.innerHTML = `
+            <div class="text-center text-muted p-4">
+                <i class="fas fa-comments fa-3x mb-3"></i>
+                <p>Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    messages.forEach(message => {
+        displayMessage(message, false);
+    });
+    
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const messageText = input.value.trim();
+    
+    if (!messageText) return;
+    
+    const message = {
+        id: Date.now(),
+        text: messageText,
+        sender: '{{ session.username if session.username else "Anonymous" }}',
+        timestamp: new Date().toISOString(),
+        isSent: true
+    };
+    
+    // Save to history
+    if (!messageHistory[currentChatId]) {
+        messageHistory[currentChatId] = [];
+    }
+    messageHistory[currentChatId].push(message);
+    localStorage.setItem('chatHistory', JSON.stringify(messageHistory));
+    
+    // Display message
+    displayMessage(message, true);
+    
+    // Clear input
+    input.value = '';
+    
+    // Auto-scroll
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Simulate response after a delay
+    setTimeout(() => {
+        simulateResponse(messageText);
+    }, 1000 + Math.random() * 2000);
+}
+
+function displayMessage(message, animate = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    
+    const avatarBg = message.isSent ? 'bg-success' : 'bg-primary';
+    const avatarIcon = message.isSent ? 'fa-user' : 'fa-robot';
+    const messageClass = message.isSent ? 'message-sent' : 'message-received';
+    
+    messageDiv.className = `message ${messageClass}`;
+    if (animate) {
+        messageDiv.style.opacity = '0';
+        messageDiv.style.transform = 'translateY(20px)';
+    }
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar ${avatarBg} text-white">
+            <i class="fas ${avatarIcon}"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-text">${message.text}</div>
+            <div class="message-info">
+                ${message.sender} • ${formatTime(message.timestamp)}
+            </div>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    
+    if (animate) {
+        setTimeout(() => {
+            messageDiv.style.transition = 'all 0.3s ease';
+            messageDiv.style.opacity = '1';
+            messageDiv.style.transform = 'translateY(0)';
+        }, 100);
+    }
+}
+
+function simulateResponse(userMessage) {
+    const responses = [
+        "Thật thú vị! Bạn có thể chia sẻ thêm về điều đó không?",
+        "Tôi hiểu ý bạn. Còn điều gì khác bạn muốn thảo luận?",
+        "Đó là một quan điểm hay. Cảm ơn bạn đã chia sẻ!",
+        "Tôi đồng ý với bạn. Hãy tiếp tục thảo luận nhé!",
+        "Điều đó nghe có vẻ thú vị. Bạn có kinh nghiệm gì về vấn đề này?",
+        "Cảm ơn bạn đã góp ý. Ai khác có ý kiến gì không?"
+    ];
+    
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    const responseMessage = {
+        id: Date.now(),
+        text: randomResponse,
+        sender: 'CoachBot',
+        timestamp: new Date().toISOString(),
+        isSent: false
+    };
+    
+    // Save to history
+    messageHistory[currentChatId].push(responseMessage);
+    localStorage.setItem('chatHistory', JSON.stringify(messageHistory));
+    
+    // Display message
+    displayMessage(responseMessage, true);
+    
+    // Auto-scroll
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function handleEnterPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+function clearChatHistory() {
+    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện?')) {
+        messageHistory = {};
+        localStorage.removeItem('chatHistory');
+        loadChatHistory();
+        showNotification('Đã xóa toàn bộ lịch sử trò chuyện', 'success');
+    }
+}
+
+function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMinutes = Math.floor(diffMs / 60000);
+    
+    if (diffMinutes < 1) return 'Vừa xong';
+    if (diffMinutes < 60) return `${diffMinutes} phút trước`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)} giờ trước`;
+    return date.toLocaleDateString('vi-VN');
+}
+
+function showNotification(message, type = 'info') {
+    // Use the global notification function if available
+    if (window.CoachEduAI && window.CoachEduAI.showNotification) {
+        window.CoachEduAI.showNotification(message, type);
+    } else {
+        alert(message);
+    }
+}
+</script>
+{% endblock %}
