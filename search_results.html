@@ -1,0 +1,492 @@
+
+{% extends "base.html" %}
+
+{% block title %}Kết quả tìm kiếm - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Search Header -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h4 mb-2">
+                        <i class="fas fa-search me-2"></i>Kết quả tìm kiếm
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Tìm thấy <strong>{{ results_count or 247 }}</strong> kết quả cho từ khóa 
+                        "<strong>{{ query or 'phương trình' }}</strong>"
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm..." 
+                               value="{{ query or 'phương trình' }}" id="search-input">
+                        <button class="btn btn-primary" onclick="performSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Search Filters -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-filter me-2"></i>Bộ lọc
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Content Type Filter -->
+                    <div class="filter-group mb-4">
+                        <h6 class="filter-title">Loại nội dung</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-exercises" checked>
+                            <label class="form-check-label" for="filter-exercises">
+                                Bài tập <span class="badge bg-light text-dark ms-1">156</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-contests" checked>
+                            <label class="form-check-label" for="filter-contests">
+                                Cuộc thi <span class="badge bg-light text-dark ms-1">23</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-groups">
+                            <label class="form-check-label" for="filter-groups">
+                                Nhóm <span class="badge bg-light text-dark ms-1">12</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="filter-users">
+                            <label class="form-check-label" for="filter-users">
+                                Người dùng <span class="badge bg-light text-dark ms-1">56</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Subject Filter -->
+                    <div class="filter-group mb-4">
+                        <h6 class="filter-title">Môn học</h6>
+                        <select class="form-select" id="subject-filter">
+                            <option value="">Tất cả môn học</option>
+                            <option value="math" selected>Toán học</option>
+                            <option value="physics">Vật lý</option>
+                            <option value="chemistry">Hóa học</option>
+                            <option value="biology">Sinh học</option>
+                            <option value="literature">Ngữ văn</option>
+                            <option value="english">Tiếng Anh</option>
+                        </select>
+                    </div>
+
+                    <!-- Difficulty Filter -->
+                    <div class="filter-group mb-4">
+                        <h6 class="filter-title">Độ khó</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="diff-easy">
+                            <label class="form-check-label" for="diff-easy">
+                                <span class="badge bg-success">Dễ</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="diff-medium" checked>
+                            <label class="form-check-label" for="diff-medium">
+                                <span class="badge bg-warning">Trung bình</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="diff-hard">
+                            <label class="form-check-label" for="diff-hard">
+                                <span class="badge bg-danger">Khó</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Score Range -->
+                    <div class="filter-group mb-4">
+                        <h6 class="filter-title">Điểm số</h6>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="number" class="form-control form-control-sm" 
+                                       placeholder="Từ" min="0" max="100">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control form-control-sm" 
+                                       placeholder="Đến" min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div class="filter-group mb-4">
+                        <h6 class="filter-title">Thời gian tạo</h6>
+                        <select class="form-select form-select-sm">
+                            <option value="">Mọi thời gian</option>
+                            <option value="today">Hôm nay</option>
+                            <option value="week">Tuần này</option>
+                            <option value="month">Tháng này</option>
+                            <option value="year">Năm này</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary btn-sm flex-grow-1" onclick="applyFilters()">
+                            <i class="fas fa-check me-1"></i>Áp dụng
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()">
+                            <i class="fas fa-times me-1"></i>Xóa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <!-- Sort Options -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="search-tabs">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="pill" href="#all-results">
+                                Tất cả (247)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#exercises-results">
+                                Bài tập (156)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#contests-results">
+                                Cuộc thi (23)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#groups-results">
+                                Nhóm (12)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="sort-options">
+                    <select class="form-select form-select-sm" style="width: 200px;">
+                        <option value="relevance">Liên quan nhất</option>
+                        <option value="newest">Mới nhất</option>
+                        <option value="oldest">Cũ nhất</option>
+                        <option value="popular">Phổ biến nhất</option>
+                        <option value="difficulty">Độ khó</option>
+                        <option value="score">Điểm số</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="tab-content">
+                <!-- All Results -->
+                <div class="tab-pane fade show active" id="all-results">
+                    <!-- Exercise Results -->
+                    <div class="search-result-item mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="result-badges">
+                                        <span class="badge bg-primary me-2">Bài tập</span>
+                                        <span class="badge bg-success">Dễ</span>
+                                    </div>
+                                    <small class="text-muted">15/01/2024</small>
+                                </div>
+                                
+                                <h5 class="mb-2">
+                                    <a href="/exercises/1" class="text-decoration-none">
+                                        Giải <mark>phương trình</mark> bậc hai cơ bản
+                                    </a>
+                                </h5>
+                                
+                                <p class="text-muted mb-3">
+                                    Bài tập về giải <mark>phương trình</mark> bậc hai với hệ số thực, 
+                                    áp dụng công thức nghiệm và phân tích delta. Phù hợp cho học sinh THPT...
+                                </p>
+                                
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center gap-3 text-muted small">
+                                            <span><i class="fas fa-book me-1"></i>Toán học</span>
+                                            <span><i class="fas fa-star me-1"></i>10 điểm</span>
+                                            <span><i class="fas fa-users me-1"></i>1,234 lượt làm</span>
+                                            <span><i class="fas fa-check-circle text-success me-1"></i>85% AC</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="btn-group">
+                                            <a href="/exercises/1" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-play me-1"></i>Làm bài
+                                            </a>
+                                            <button class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contest Results -->
+                    <div class="search-result-item mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="result-badges">
+                                        <span class="badge bg-warning me-2">Cuộc thi</span>
+                                        <span class="badge bg-info">Đang diễn ra</span>
+                                    </div>
+                                    <small class="text-muted">12/01/2024</small>
+                                </div>
+                                
+                                <h5 class="mb-2">
+                                    <a href="/contests/1" class="text-decoration-none">
+                                        Olympic <mark>Phương trình</mark> và Bất phương trình 2024
+                                    </a>
+                                </h5>
+                                
+                                <p class="text-muted mb-3">
+                                    Cuộc thi toàn quốc về <mark>phương trình</mark> bậc hai, bậc ba và 
+                                    các dạng bất phương trình. Thời gian thi: 120 phút, 15 câu hỏi...
+                                </p>
+                                
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center gap-3 text-muted small">
+                                            <span><i class="fas fa-book me-1"></i>Toán học</span>
+                                            <span><i class="fas fa-clock me-1"></i>120 phút</span>
+                                            <span><i class="fas fa-users me-1"></i>567 tham gia</span>
+                                            <span><i class="fas fa-trophy text-warning me-1"></i>100 điểm ranking</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <a href="/contests/1" class="btn btn-success btn-sm">
+                                            <i class="fas fa-play me-1"></i>Tham gia
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group Results -->
+                    <div class="search-result-item mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="result-badges">
+                                        <span class="badge bg-info me-2">Nhóm</span>
+                                        <span class="badge bg-success">Công khai</span>
+                                    </div>
+                                    <small class="text-muted">10/01/2024</small>
+                                </div>
+                                
+                                <h5 class="mb-2">
+                                    <a href="/groups/1" class="text-decoration-none">
+                                        Nhóm học <mark>Phương trình</mark> THPT
+                                    </a>
+                                </h5>
+                                
+                                <p class="text-muted mb-3">
+                                    Cộng đồng học tập về <mark>phương trình</mark> dành cho học sinh THPT. 
+                                    Chia sẻ kiến thức, thảo luận và giải đáp thắc mắc về các dạng toán...
+                                </p>
+                                
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-md-8">
+                                        <div class="d-flex align-items-center gap-3 text-muted small">
+                                            <span><i class="fas fa-users me-1"></i>245 thành viên</span>
+                                            <span><i class="fas fa-comments me-1"></i>1,567 thảo luận</span>
+                                            <span><i class="fas fa-book me-1"></i>156 bài tập</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <a href="/groups/1" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-users me-1"></i>Tham gia
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other tabs would have similar structure -->
+                <div class="tab-pane fade" id="exercises-results">
+                    <p class="text-muted">Chỉ hiển thị kết quả bài tập...</p>
+                </div>
+                
+                <div class="tab-pane fade" id="contests-results">
+                    <p class="text-muted">Chỉ hiển thị kết quả cuộc thi...</p>
+                </div>
+                
+                <div class="tab-pane fade" id="groups-results">
+                    <p class="text-muted">Chỉ hiển thị kết quả nhóm...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Search results pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <span class="page-link">Trước</span>
+                    </li>
+                    <li class="page-item active">
+                        <span class="page-link">1</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=2">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=3">3</a>
+                    </li>
+                    <li class="page-item">
+                        <span class="page-link">...</span>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=25">25</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=2">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<style>
+.filter-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.filter-group {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.filter-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.search-result-item {
+    transition: transform 0.2s ease;
+}
+
+.search-result-item:hover {
+    transform: translateY(-2px);
+}
+
+.search-result-item .card {
+    transition: box-shadow 0.2s ease;
+}
+
+.search-result-item:hover .card {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+mark {
+    background-color: #fff3cd;
+    padding: 0.1em 0.2em;
+    border-radius: 0.2em;
+}
+
+.result-badges .badge {
+    font-size: 0.75em;
+}
+
+.search-tabs .nav-pills .nav-link {
+    color: #6c757d;
+    border-radius: 0.5rem;
+}
+
+.search-tabs .nav-pills .nav-link.active {
+    background-color: #0d6efd;
+}
+</style>
+
+<script>
+function performSearch() {
+    const searchInput = document.getElementById('search-input');
+    const query = searchInput.value.trim();
+    
+    if (query) {
+        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+    }
+}
+
+function applyFilters() {
+    // Collect all filter values and apply them
+    const filters = {};
+    
+    // Content type filters
+    filters.types = [];
+    if (document.getElementById('filter-exercises').checked) filters.types.push('exercises');
+    if (document.getElementById('filter-contests').checked) filters.types.push('contests');
+    if (document.getElementById('filter-groups').checked) filters.types.push('groups');
+    if (document.getElementById('filter-users').checked) filters.types.push('users');
+    
+    // Subject filter
+    const subject = document.getElementById('subject-filter').value;
+    if (subject) filters.subject = subject;
+    
+    // Difficulty filters
+    filters.difficulty = [];
+    if (document.getElementById('diff-easy').checked) filters.difficulty.push('easy');
+    if (document.getElementById('diff-medium').checked) filters.difficulty.push('medium');
+    if (document.getElementById('diff-hard').checked) filters.difficulty.push('hard');
+    
+    console.log('Applying filters:', filters);
+    // In a real app, this would trigger a new search with filters
+    alert('Đã áp dụng bộ lọc! (Chức năng demo)');
+}
+
+function clearFilters() {
+    // Reset all filter inputs
+    document.querySelectorAll('.card-body input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.card-body input[type="number"]').forEach(input => input.value = '');
+    document.querySelectorAll('.card-body select').forEach(select => select.selectedIndex = 0);
+    
+    // Re-check default filters
+    document.getElementById('filter-exercises').checked = true;
+    document.getElementById('filter-contests').checked = true;
+    document.getElementById('diff-medium').checked = true;
+    document.getElementById('subject-filter').value = 'math';
+}
+
+// Enter key search
+document.getElementById('search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Auto-save search state
+window.addEventListener('beforeunload', function() {
+    const searchInput = document.getElementById('search-input');
+    localStorage.setItem('lastSearch', searchInput.value);
+});
+
+// Load saved search on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const lastSearch = localStorage.getItem('lastSearch');
+    if (lastSearch && !document.getElementById('search-input').value) {
+        document.getElementById('search-input').value = lastSearch;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+
+{% extends "base.html" %}
+
+{% block title %}Tạo cuộc thi - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Tạo cuộc thi mới
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="contestForm">
+                        <!-- Basic Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Tên cuộc thi</label>
+                                <input type="text" class="form-control" name="title" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Môn học</label>
+                                <select class="form-select" name="subject" required>
+                                    {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+
+                        <!-- Time Settings -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Thời gian bắt đầu</label>
+                                <input type="datetime-local" class="form-control" name="start_time" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Thời gian kết thúc</label>
+                                <input type="datetime-local" class="form-control" name="end_time" required>
+                            </div>
+                        </div>
+
+                        <!-- Duration Settings -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_unlimited_time" id="unlimitedTime" onchange="toggleDuration()">
+                                <label class="form-check-label" for="unlimitedTime">
+                                    Thời gian làm bài không giới hạn
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="durationSection">
+                            <label class="form-label">Thời gian làm bài (phút)</label>
+                            <input type="number" class="form-control" name="duration" min="1" value="60">
+                        </div>
+
+                        <!-- Contest Settings -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_public" id="isPublic" checked>
+                                    <label class="form-check-label" for="isPublic">
+                                        Cuộc thi công khai
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_official" id="isOfficial">
+                                    <label class="form-check-label" for="isOfficial">
+                                        Cuộc thi chính thức
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Exercise Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">Chọn bài tập cho cuộc thi</label>
+                            <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                {% for exercise in exercises %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="exercises[]" value="{{ exercise.id }}" id="exercise{{ exercise.id }}">
+                                    <label class="form-check-label" for="exercise{{ exercise.id }}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ exercise.title }}</strong>
+                                                <span class="badge 
+                                                    {% if exercise.difficulty == 'easy' %}bg-success
+                                                    {% elif exercise.difficulty == 'medium' %}bg-warning
+                                                    {% else %}bg-danger{% endif %}">
+                                                    {% if exercise.difficulty == 'easy' %}Dễ
+                                                    {% elif exercise.difficulty == 'medium' %}Trung bình
+                                                    {% else %}Khó{% endif %}
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">{{ exercise.content[:100] }}...</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-primary">{{ exercise.points }} điểm</div>
+                                                <small class="text-muted">{{ exercise.author_name }}</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">Hãy chọn ít nhất 1 bài tập cho cuộc thi</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('contests') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Tạo cuộc thi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDuration() {
+    const checkbox = document.getElementById('unlimitedTime');
+    const durationSection = document.getElementById('durationSection');
+    const durationInput = document.querySelector('input[name="duration"]');
+    
+    if (checkbox.checked) {
+        durationSection.style.display = 'none';
+        durationInput.required = false;
+    } else {
+        durationSection.style.display = 'block';
+        durationInput.required = true;
+    }
+}
+
+// Validate form before submit
+document.getElementById('contestForm').addEventListener('submit', function(e) {
+    const selectedExercises = document.querySelectorAll('input[name="exercises[]"]:checked');
+    if (selectedExercises.length === 0) {
+        e.preventDefault();
+        alert('Vui lòng chọn ít nhất 1 bài tập cho cuộc thi!');
+        return false;
+    }
+    
+    const startTime = new Date(document.querySelector('input[name="start_time"]').value);
+    const endTime = new Date(document.querySelector('input[name="end_time"]').value);
+    
+    if (startTime >= endTime) {
+        e.preventDefault();
+        alert('Thời gian kết thúc phải sau thời gian bắt đầu!');
+        return false;
+    }
+});
+</script>
+{% endblock %}

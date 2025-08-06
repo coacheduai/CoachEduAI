@@ -1,0 +1,126 @@
+
+{% extends "base.html" %}
+
+{% block title %}Trang chủ - CoachEduAI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card text-white" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-2">Chào mừng đến với CoachEduAI!</h2>
+                            <p class="mb-0">Sẵn sàng để tiếp tục hành trình học tập với AI của bạn?</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <i class="fas fa-robot fa-4x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <a href="{{ url_for('exercises') }}" class="text-decoration-none">
+                <div class="card h-100 hover-scale border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-book fa-lg"></i>
+                        </div>
+                        <h6 class="card-title text-primary">Làm bài tập</h6>
+                        <p class="card-text small text-muted">Khám phá thư viện bài tập đa dạng</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="{{ url_for('contests') }}" class="text-decoration-none">
+                <div class="card h-100 hover-scale border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-trophy fa-lg"></i>
+                        </div>
+                        <h6 class="card-title text-warning">Tham gia thi</h6>
+                        <p class="card-text small text-muted">Thử thách bản thân với cuộc thi</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="{{ url_for('chatbot') }}" class="text-decoration-none">
+                <div class="card h-100 hover-scale border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-robot fa-lg"></i>
+                        </div>
+                        <h6 class="card-title text-info">CoachAI</h6>
+                        <p class="card-text small text-muted">Trợ lý AI thông minh</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="{{ url_for('groups') }}" class="text-decoration-none">
+                <div class="card h-100 hover-scale border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-users fa-lg"></i>
+                        </div>
+                        <h6 class="card-title text-success">Tham gia nhóm</h6>
+                        <p class="card-text small text-muted">Học cùng cộng đồng</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Contests -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>Cuộc thi mới nhất
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_contests %}
+                        <div class="row">
+                            {% for contest in recent_contests %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card contest-card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ contest.title }}</h6>
+                                        <p class="card-text small">{{ contest.description[:100] }}...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-primary">{{ contest.subject_name }}</span>
+                                            <a href="{{ url_for('contests') }}" class="btn btn-sm btn-outline-primary">
+                                                Xem chi tiết
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-trophy fa-3x mb-3"></i>
+                            <p>Chưa có cuộc thi nào. Hãy tạo cuộc thi đầu tiên!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
